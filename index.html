@@ -11,12 +11,20 @@
     <div class="app-container">
         <aside id="sidebar" class="sidebar">
             <div class="sidebar-header">
-                <h1 class="sidebar-title">MedLink AI 🩺</h1>
+                <h1 class="sidebar-title">MedLink AI</h1>
                 <button id="sidebar-close-btn" class="sidebar-toggle"><i class="fas fa-times"></i></button>
             </div>
             <nav class="sidebar-nav">
-                <a href="#" class="nav-link active" data-target="home-view"><i class="fas fa-home"></i> 홈</a>
+                <a href="#" class="nav-link active" data-target="review-view"><i class="fas fa-star"></i> 최신 강의 복습</a>
                 <a href="#" class="nav-link" data-target="archive-view"><i class="fas fa-archive"></i> 강의 아카이브</a>
+                <details class="nav-group">
+                    <summary class="nav-link"><i class="fas fa-pencil-alt"></i> 문제 은행</summary>
+                    <div class="nav-submenu">
+                        <a href="#" class="nav-link" data-target="bank-view"><i class="fas fa-list-ul"></i> 단원별 문제은행</a>
+                        <a href="#" class="nav-link" data-target="mock-view"><i class="fas fa-file-alt"></i> 총괄 모의고사</a>
+                        <a href="#" class="nav-link" data-target="my-quiz-view"><i class="fas fa-bookmark"></i> 나만의 문제집</a>
+                    </div>
+                </details>
             </nav>
             <div class="sidebar-footer">
                 <span id="app-version"></span>
@@ -24,42 +32,57 @@
         </aside>
 
         <main id="main-content" class="main-content">
-            <button id="sidebar-open-btn" class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            <header class="main-header">
+                <button id="sidebar-open-btn" class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+                <h1 class="main-title">MedLink AI 🩺</h1>
+            </header>
             
-            <div id="home-view" class="view active-view">
-                <div class="section">
-                    <input type="text" id="search-input" class="search-box" placeholder="전체 자료에서 검색 (예: Mitochondria, 김성찬)...">
-                </div>
-                <div class="section">
-                    <h2>🚀 최신 강의 핵심 복습</h2>
-                    <div id="latest-review-content"><p>새로운 강의 자료가 추가되면 여기에 표시됩니다.</p></div>
-                </div>
-                <div class="section">
-                    <h2>🛠️ 학습 도구</h2>
-                    <div class="tool-buttons">
-                        <button id="show-chapter-bank-btn">단원별 문제은행</button>
-                        <button id="show-mock-exam-btn">총괄 모의고사</button>
-                        <button id="show-my-quiz-btn">나만의 문제집</button>
-                    </div>
-                    <div id="chapter-selection" class="options-menu" style="display:none;">
-                        <label for="chapter-select">단원 선택:</label>
-                        <select id="chapter-select"></select>
-                        <button id="generate-bank-btn" class="action-button">문제 보기</button>
-                    </div>
-                    <div id="quiz-options" class="options-menu" style="display:none;">
-                        <label for="mock-exam-count">문제 수:</label>
-                        <select id="mock-exam-count">
-                            <option value="10">10개</option><option value="20">20개</option><option value="30">30개</option><option value="50">50개</option>
-                        </select>
-                        <button id="generate-mock-btn" class="action-button">모의고사 시작</button>
+            <div id="view-container">
+                <div id="review-view" class="view active-view">
+                    <div class="section">
+                        <h2>🚀 최신 강의 핵심 복습</h2>
+                        <div id="latest-review-content"><p>새로운 강의 자료가 추가되면 여기에 표시됩니다.</p></div>
                     </div>
                 </div>
-            </div>
 
-            <div id="archive-view" class="view">
-                <div class="section">
-                    <h2>📚 강의 자료 아카이브</h2>
-                    <div id="archive-list"></div>
+                <div id="archive-view" class="view">
+                     <div class="section">
+                        <input type="text" id="search-input" class="search-box" placeholder="강의 및 문제 전체에서 검색...">
+                    </div>
+                    <div class="section">
+                        <h2>📚 강의 자료 아카이브</h2>
+                        <div id="archive-list"></div>
+                    </div>
+                </div>
+                
+                <div id="bank-view" class="view">
+                    <div class="section">
+                        <h2>단원별 문제은행</h2>
+                        <div id="chapter-selection" class="options-menu">
+                            <label for="chapter-select">단원 선택:</label>
+                            <select id="chapter-select"></select>
+                            <button id="generate-bank-btn" class="action-button">문제 보기</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="mock-view" class="view">
+                    <div class="section">
+                        <h2>총괄 모의고사</h2>
+                        <div id="quiz-options" class="options-menu">
+                            <label for="mock-exam-count">문제 수:</label>
+                            <select id="mock-exam-count">
+                                <option value="10">10개</option><option value="20">20개</option><option value="30">30개</option><option value="50">50개</option>
+                            </select>
+                            <button id="generate-mock-btn" class="action-button">모의고사 시작</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="my-quiz-view" class="view">
+                     <div class="section">
+                        <h2>나만의 문제집</h2>
+                        <p>저장된 문제들을 확인하고 복습할 수 있습니다.</p>
+                        <button id="show-my-quiz-btn" class="action-button" style="width: 100%; margin-top: 1rem;">나만의 문제집 열기</button>
+                    </div>
                 </div>
             </div>
         </main>

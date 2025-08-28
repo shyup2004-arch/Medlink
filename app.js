@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- App Version ---
-    const APP_VERSION = "v1.6";
+    const APP_VERSION = "v1.7";
 
     // --- DOM Elements ---
     const archiveList = document.getElementById('archive-list');
@@ -9,10 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('quiz-modal');
     const modalTitle = document.getElementById('modal-title');
     const modalBody = document.getElementById('modal-body');
-    const chapterOptions = document.getElementById('chapter-selection');
-    const mockOptions = document.getElementById('quiz-options');
     const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('main-content');
     const navLinks = document.querySelectorAll('.nav-link');
     const views = document.querySelectorAll('.view');
 
@@ -30,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const matchingLectures = lectureData.filter(l => l.title.toLowerCase().includes(query) || l.professor.toLowerCase().includes(query));
         
-        if (!query) { // 초기 화면: 강의 목록만 표시
+        if (!query) { // 초기 아카이브 화면: 강의 목록만 표시
             matchingLectures.forEach(lecture => {
                 const item = document.createElement('div');
                 item.className = 'lecture-item';
@@ -43,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // 검색 화면: 강의와 문제 함께 표시
+        // 검색 결과 화면: 강의와 문제 함께 표시
         if (matchingLectures.length > 0) {
              archiveList.innerHTML += '<h3>관련 강의</h3>';
              matchingLectures.forEach(lecture => {
@@ -78,11 +75,6 @@ document.addEventListener('DOMContentLoaded', function() {
             option.textContent = lecture.title;
             chapterSelect.appendChild(option);
         });
-    }
-
-    function hideAllToolOptions() {
-        mockOptions.style.display = 'none';
-        chapterOptions.style.display = 'none';
     }
 
     function displayQuestionsInModal(questions, title) {
@@ -126,6 +118,25 @@ document.addEventListener('DOMContentLoaded', function() {
         displayQuestionsInModal(savedQuestions, '나만의 문제집');
     }
 
+    function switchView(targetId) {
+        views.forEach(view => view.classList.remove('active-view'));
+        const targetView = document.getElementById(targetId);
+        if (targetView) {
+            targetView.classList.add('active-view');
+        }
+
+        navLinks.forEach(navLink => {
+            navLink.classList.remove('active');
+            if(navLink.dataset.target === targetId) {
+                navLink.classList.add('active');
+                // Open parent details if it's a sub-link
+                if (navLink.parentElement.classList.contains('nav-submenu')) {
+                    navLink.closest('.nav-group').open = true;
+                }
+            }
+        });
+    }
+    
     // --- Sidebar and Navigation Logic ---
     function toggleSidebar(forceOpen) {
         if (typeof forceOpen === 'boolean') {
@@ -137,17 +148,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = link.dataset.target;
-
-            views.forEach(view => view.classList.remove('active-view'));
-            document.getElementById(targetId).classList.add('active-view');
-            
-            navLinks.forEach(navLink => navLink.classList.remove('active'));
-            link.classList.add('active');
-
-            if (window.innerWidth < 768) {
-                toggleSidebar(false);
+            if (link.tagName === 'A') { // Only prevent default for actual links
+                e.preventDefault();
+                const targetId = link.dataset.target;
+                if(targetId) {
+                    switchView(targetId);
+                }
+                if (window.innerWidth < 768) {
+                    toggleSidebar(false);
+                }
             }
         });
     });
@@ -177,26 +186,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('sidebar-open-btn').addEventListener('click', () => toggleSidebar(true));
     document.getElementById('sidebar-close-btn').addEventListener('click', () => toggleSidebar(false));
 
-    document.getElementById('show-chapter-bank-btn').addEventListener('click', () => {
-        hideAllToolOptions();
-        chapterOptions.style.display = 'block';
-    });
-
-    document.getElementById('show-mock-exam-btn').addEventListener('click', () => {
-        hideAllToolOptions();
-        mockOptions.style.display = 'block';
-    });
-
-    document.getElementById('show-my-quiz-btn').addEventListener('click', () => {
-        hideAllToolOptions();
-        const savedIds = JSON.parse(localStorage.getItem('myQuizIds') || '[]');
-        if (savedIds.length === 0) {
-            alert("'나만의 문제집'이 비어있습니다."); return;
-        }
-        const savedQuestions = questionData.filter(q => savedIds.includes(q.id));
-        displayQuestionsInModal(savedQuestions, '나만의 문제집');
-    });
-
     document.getElementById('generate-bank-btn').addEventListener('click', () => {
         const chapterId = chapterSelect.value;
         const questions = (chapterId === 'all') ? questionData : questionData.filter(q => q.chapter.includes(parseInt(chapterId)));
@@ -208,6 +197,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const count = parseInt(document.getElementById('mock-exam-count').value);
         const shuffled = [...questionData].sort(() => 0.5 - Math.random());
         displayQuestionsInModal(shuffled.slice(0, count), `총괄 모의고사 (${count}문제)`);
+    });
+    
+    document.getElementById('show-my-quiz-btn').addEventListener('click', () => {
+        const savedIds = JSON.parse(localStorage.getItem('myQuizIds') || '[]');
+        if (savedIds.length === 0) {
+            alert("'나만의 문제집'이 비어있습니다."); return;
+        }
+        const savedQuestions = questionData.filter(q => savedIds.includes(q.id));
+        displayQuestionsInModal(savedQuestions, '나만의 문제집');
     });
 
     document.getElementById('save-questions-btn').addEventListener('click', () => {
@@ -227,11 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     searchInput.addEventListener('input', () => {
         const query = searchInput.value;
-        document.getElementById('archive-view').classList.add('active-view');
-        document.getElementById('home-view').classList.remove('active-view');
-        navLinks.forEach(link => {
-            link.classList.toggle('active', link.dataset.target === 'archive-view');
-        });
+        switchView('archive-view');
         renderArchive(query);
     });
 
@@ -242,4 +236,5 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('app-version').textContent = APP_VERSION;
     renderArchive();
     populateChapterSelect();
+    switchView('review-view'); // Set initial view
 });
