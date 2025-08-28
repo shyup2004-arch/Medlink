@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- App Version ---
-    const APP_VERSION = "v1.7";
+    const APP_VERSION = "v1.8 (Test)";
 
     // --- DOM Elements ---
     const archiveList = document.getElementById('archive-list');
@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.getElementById('sidebar');
     const navLinks = document.querySelectorAll('.nav-link');
     const views = document.querySelectorAll('.view');
+    const latestReviewContent = document.getElementById('latest-review-content');
 
     // --- Core Functions ---
     function toggleContent(element) {
@@ -20,50 +21,66 @@ document.addEventListener('DOMContentLoaded', function() {
             content.style.display = (content.style.display === 'block') ? 'none' : 'block';
         }
     }
+    
+    function renderLatestReview() {
+        if (typeof latestLectureData !== 'undefined' && latestLectureData) {
+            let quizHTML = latestLectureData.reviewQuiz.map((quiz, index) => `
+                <div class="question-item" style="padding: 10px; margin-top: 15px;">
+                    <div class="question-title">
+                        <span>Q${index + 1}. ${quiz.question}</span>
+                    </div>
+                    <div class="content" style="margin-top: 8px; padding-top: 8px;">
+                        <pre>${quiz.answer}</pre>
+                    </div>
+                </div>
+            `).join('');
+
+            latestReviewContent.innerHTML = `
+                <h4><strong>${latestLectureData.title}</strong> (${latestLectureData.professor})</h4>
+                <p>${latestLectureData.summary}</p>
+                <h4 style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;"><strong>🎯 핵심 확인 퀴즈</strong></h4>
+                ${quizHTML}
+            `;
+        } else {
+            latestReviewContent.innerHTML = '<p>새로운 강의 자료가 추가되면 여기에 표시됩니다.</p>';
+        }
+    }
 
     function renderArchive(filter = '') {
         archiveList.innerHTML = '';
         const query = filter.toLowerCase();
         
-        const matchingLectures = lectureData.filter(l => l.title.toLowerCase().includes(query) || l.professor.toLowerCase().includes(query));
+        let dataToRender = lectureData;
+        if (query) {
+            dataToRender = lectureData.filter(l => l.title.toLowerCase().includes(query) || l.professor.toLowerCase().includes(query));
+        }
         
-        if (!query) { // 초기 아카이브 화면: 강의 목록만 표시
-            matchingLectures.forEach(lecture => {
+        if (dataToRender.length > 0) {
+             if (query) archiveList.innerHTML += '<h3>관련 강의</h3>';
+             dataToRender.forEach(lecture => {
+                const summaryContent = lecture.summary ? `<p>${lecture.summary}</p>` : `<p><i>- 향후 강의자료 요약 내용으로 채워집니다. -</i></p>`;
                 const item = document.createElement('div');
                 item.className = 'lecture-item';
-                item.innerHTML = `<div class="lecture-title"><span>${lecture.title}</span><span class="professor-tag">${lecture.professor}</span></div><div class="content"><p><i>- 향후 강의자료 요약 내용으로 채워집니다. -</i></p></div>`;
+                item.innerHTML = `<div class="lecture-title"><span>${lecture.title}</span><span class="professor-tag">${lecture.professor}</span></div><div class="content">${summaryContent}</div>`;
                 archiveList.appendChild(item);
             });
-            if (matchingLectures.length === 0) {
-                 archiveList.innerHTML = '<p>강의 자료가 없습니다.</p>';
+        }
+
+        if (query) {
+            const matchingQuestions = questionData.filter(q => q.question.toLowerCase().includes(query) || q.answer.toLowerCase().includes(query) || q.professor.toLowerCase().includes(query));
+            if (matchingQuestions.length > 0) {
+                archiveList.innerHTML += '<h3 style="margin-top:20px;">관련 문제</h3>';
+                matchingQuestions.forEach(q => {
+                    const item = document.createElement('div');
+                    item.className = 'question-item';
+                    item.innerHTML = `<div class="question-title"><span>${q.question}</span><span class="professor-tag">${q.professor} (${q.exam})</span></div><div class="content"><pre>${q.answer}</pre></div>`;
+                    archiveList.appendChild(item);
+                });
             }
-            return;
-        }
-
-        // 검색 결과 화면: 강의와 문제 함께 표시
-        if (matchingLectures.length > 0) {
-             archiveList.innerHTML += '<h3>관련 강의</h3>';
-             matchingLectures.forEach(lecture => {
-                const item = document.createElement('div');
-                item.className = 'lecture-item';
-                item.innerHTML = `<div class="lecture-title"><span>${lecture.title}</span><span class="professor-tag">${lecture.professor}</span></div><div class="content"><p><i>- 향후 강의자료 요약 내용으로 채워집니다. -</i></p></div>`;
-                archiveList.appendChild(item);
-            });
-        }
-
-        const matchingQuestions = questionData.filter(q => q.question.toLowerCase().includes(query) || q.answer.toLowerCase().includes(query) || q.professor.toLowerCase().includes(query));
-        if (matchingQuestions.length > 0) {
-            archiveList.innerHTML += '<h3>관련 문제</h3>';
-            matchingQuestions.forEach(q => {
-                const item = document.createElement('div');
-                item.className = 'question-item';
-                item.innerHTML = `<div class="question-title"><span>${q.question}</span><span class="professor-tag">${q.professor} (${q.exam})</span></div><div class="content"><pre>${q.answer}</pre></div>`;
-                archiveList.appendChild(item);
-            });
         }
         
-        if (matchingLectures.length === 0 && matchingQuestions.length === 0) {
-            archiveList.innerHTML = '<p>검색 결과가 없습니다.</p>';
+        if (archiveList.innerHTML === '') {
+            archiveList.innerHTML = query ? '<p>검색 결과가 없습니다.</p>' : '<p>강의 자료가 없습니다.</p>';
         }
     }
 
@@ -129,7 +146,6 @@ document.addEventListener('DOMContentLoaded', function() {
             navLink.classList.remove('active');
             if(navLink.dataset.target === targetId) {
                 navLink.classList.add('active');
-                // Open parent details if it's a sub-link
                 if (navLink.parentElement.classList.contains('nav-submenu')) {
                     navLink.closest('.nav-group').open = true;
                 }
@@ -137,7 +153,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // --- Sidebar and Navigation Logic ---
     function toggleSidebar(forceOpen) {
         if (typeof forceOpen === 'boolean') {
             sidebar.classList.toggle('open', forceOpen);
@@ -146,9 +161,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // --- Event Delegation ---
+    document.body.addEventListener('click', function(e) {
+        const title = e.target.closest('.lecture-title, .question-title');
+        if (title) {
+            toggleContent(title);
+        }
+    });
+
+    modalBody.addEventListener('click', function(e) {
+        const removeBtn = e.target.closest('.remove-btn');
+        if (removeBtn) {
+            e.stopPropagation();
+            const questionId = parseInt(e.target.closest('.question-item').dataset.id);
+            removeQuestionFromMyQuiz(questionId);
+        }
+    });
+
+    // --- Other Event Listeners ---
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            if (link.tagName === 'A') { // Only prevent default for actual links
+            if (link.tagName === 'A') {
                 e.preventDefault();
                 const targetId = link.dataset.target;
                 if(targetId) {
@@ -161,28 +194,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // --- Event Delegation ---
-    archiveList.addEventListener('click', function(e) {
-        const title = e.target.closest('.lecture-title, .question-title');
-        if (title) {
-            toggleContent(title);
-        }
-    });
-
-    modalBody.addEventListener('click', function(e) {
-        const title = e.target.closest('.question-title');
-        const removeBtn = e.target.closest('.remove-btn');
-        
-        if (removeBtn) {
-            e.stopPropagation();
-            const questionId = parseInt(e.target.closest('.question-item').dataset.id);
-            removeQuestionFromMyQuiz(questionId);
-        } else if (title && e.target.type !== 'checkbox') {
-            toggleContent(title);
-        }
-    });
-
-    // --- Other Event Listeners ---
     document.getElementById('sidebar-open-btn').addEventListener('click', () => toggleSidebar(true));
     document.getElementById('sidebar-close-btn').addEventListener('click', () => toggleSidebar(false));
 
@@ -234,7 +245,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Initial Load ---
     document.getElementById('app-version').textContent = APP_VERSION;
+    renderLatestReview();
     renderArchive();
     populateChapterSelect();
-    switchView('review-view'); // Set initial view
+    switchView('review-view');
 });
