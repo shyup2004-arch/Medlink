@@ -17,3 +17,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 const database = firebase.database();
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+// Create a reference to the database
+const database = firebase.database();
