@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- App Version ---
-    const APP_VERSION = "v1.9 (Test)";
+    const APP_VERSION = "v1.10 (Test)";
 
     // --- DOM Elements ---
     const archiveList = document.getElementById('archive-list');
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof latestLectureData !== 'undefined' && latestLectureData) {
             let quizHTML = latestLectureData.reviewQuiz.map((quiz, index) => `
                 <div class="question-item" style="padding: 10px; margin-top: 15px;">
-                    <div class="question-title">
+                    <div class="question-title" onclick="this.nextElementSibling.style.display = (this.nextElementSibling.style.display === 'block' ? 'none' : 'block');">
                         <span>Q${index + 1}. ${quiz.question}</span>
                     </div>
                     <div class="content" style="margin-top: 8px; padding-top: 8px;">
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             latestReviewContent.innerHTML = `
                 <h4><strong>${latestLectureData.title}</strong> (${latestLectureData.professor})</h4>
-                <div style="line-height: 1.6; white-space: pre-wrap;">${latestLectureData.summary}</div>
+                <div class="summary-box">${latestLectureData.summary}</div>
                 <h4 style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;"><strong>🎯 핵심 확인 퀴즈</strong></h4>
                 ${quizHTML}
             `;
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (dataToRender.length > 0) {
              if (query) archiveList.innerHTML += '<h3>관련 강의</h3>';
              dataToRender.forEach(lecture => {
-                const summaryContent = lecture.summary ? `<div style="line-height: 1.6; white-space: pre-wrap;">${lecture.summary}</div>` : `<p><i>- 향후 강의자료 요약 내용으로 채워집니다. -</i></p>`;
+                const summaryContent = lecture.summary ? `<div class="summary-box">${lecture.summary}</div>` : `<p><i>- 향후 강의자료 요약 내용으로 채워집니다. -</i></p>`;
                 const item = document.createElement('div');
                 item.className = 'lecture-item';
                 item.innerHTML = `<div class="lecture-title"><span>${lecture.title}</span><span class="professor-tag">${lecture.professor}</span></div><div class="content">${summaryContent}</div>`;
@@ -164,17 +164,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Event Delegation ---
     document.body.addEventListener('click', function(e) {
         const title = e.target.closest('.lecture-title, .question-title');
-        if (title) {
+        if (title && !e.target.closest('.question-item')) { // Modal 내부는 별도 처리
             toggleContent(title);
         }
     });
 
     modalBody.addEventListener('click', function(e) {
+        const title = e.target.closest('.question-title');
         const removeBtn = e.target.closest('.remove-btn');
+        
         if (removeBtn) {
             e.stopPropagation();
             const questionId = parseInt(e.target.closest('.question-item').dataset.id);
             removeQuestionFromMyQuiz(questionId);
+        } else if (title && e.target.type !== 'checkbox') {
+            toggleContent(title);
         }
     });
 
@@ -222,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('save-questions-btn').addEventListener('click', () => {
         const checkboxes = modalBody.querySelectorAll('.save-checkbox:checked');
         if (checkboxes.length === 0) {
-            alert('저장할 문제를 먼저 선택해주세요.'); return;
+            alert('저장할 문제를 선택해주세요.'); return;
         }
         let savedIds = JSON.parse(localStorage.getItem('myQuizIds') || '[]');
         checkboxes.forEach(cb => {
