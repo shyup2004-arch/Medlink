@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- App Version ---
-    const APP_VERSION = "v2.1";
+    const APP_VERSION = "v2.2 (Diagnostic)";
 
     // --- Global State ---
     let lectureData = [];
@@ -21,32 +21,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Firebase Data Loading ---
     function loadDataFromFirebase() {
-        archiveList.innerHTML = "<p>데이터를 불러오는 중입니다...</p>";
+        archiveList.innerHTML = "<p>Firebase에 연결하는 중입니다...</p>";
+
+        // **DIAGNOSTIC STEP**: Check if Firebase Database is available
+        if (typeof firebase === 'undefined' || typeof firebase.database === 'undefined') {
+            const errorMessage = "<p style='color: red; font-weight: bold;'>[오류] Firebase 데이터베이스에 연결할 수 없습니다.<br>index.html 파일에 firebase-database.js 스크립트가 포함되었는지 확인해주세요.</p>";
+            archiveList.innerHTML = errorMessage;
+            console.error("Firebase Database script not loaded!");
+            return;
+        }
+
         const dbRef = firebase.database().ref();
+        archiveList.innerHTML = "<p>데이터를 불러오는 중입니다...</p>";
 
         dbRef.on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                // Convert object of objects to array of objects
+                console.log("Firebase data loaded successfully:", data);
                 lectureData = data.lectures ? Object.values(data.lectures) : [];
                 questionData = data.questions ? Object.values(data.questions) : [];
                 latestLectureData = data.latestLecture || null;
                 
-                // Initial Render once data is loaded
                 renderLatestReview();
                 renderArchive();
                 populateChapterSelect();
             } else {
-                console.log("No data found in Firebase.");
-                archiveList.innerHTML = "<p>데이터를 불러오지 못했습니다. Firebase에 initial-data.json이 업로드 되었는지 확인해주세요.</p>";
+                console.error("No data found in Firebase.");
+                archiveList.innerHTML = "<p style='color: red; font-weight: bold;'>[오류] Firebase에서 데이터를 찾을 수 없습니다.<br>Firebase Realtime Database에 initial-data.json이 올바르게 업로드되었는지 확인해주세요.</p>";
             }
         }, (error) => {
-            console.error(error);
-            archiveList.innerHTML = "<p>데이터 로딩 중 오류가 발생했습니다. 인터넷 연결 및 Firebase 설정을 확인해주세요.</p>";
+            console.error("Firebase data loading error:", error);
+            archiveList.innerHTML = `<p style='color: red; font-weight: bold;'>[오류] 데이터 로딩 중 문제가 발생했습니다.<br>인터넷 연결 및 firebase-config.js의 설정이 올바른지 확인해주세요.</p><p style='font-size: 0.8em; color: grey;'>Error: ${error.message}</p>`;
         });
     }
 
-    // --- Core Functions ---
+    // --- Core Functions (No changes from here on) ---
     function toggleContent(element) {
         const content = element.nextElementSibling;
         if (content) {
