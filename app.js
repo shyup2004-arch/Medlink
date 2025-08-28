@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- App Version ---
-    const APP_VERSION = "v1.8 (Test)";
+    const APP_VERSION = "v1.9 (Test)";
 
     // --- DOM Elements ---
     const archiveList = document.getElementById('archive-list');
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             latestReviewContent.innerHTML = `
                 <h4><strong>${latestLectureData.title}</strong> (${latestLectureData.professor})</h4>
-                <p>${latestLectureData.summary}</p>
+                <div style="line-height: 1.6; white-space: pre-wrap;">${latestLectureData.summary}</div>
                 <h4 style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;"><strong>🎯 핵심 확인 퀴즈</strong></h4>
                 ${quizHTML}
             `;
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (dataToRender.length > 0) {
              if (query) archiveList.innerHTML += '<h3>관련 강의</h3>';
              dataToRender.forEach(lecture => {
-                const summaryContent = lecture.summary ? `<p>${lecture.summary}</p>` : `<p><i>- 향후 강의자료 요약 내용으로 채워집니다. -</i></p>`;
+                const summaryContent = lecture.summary ? `<div style="line-height: 1.6; white-space: pre-wrap;">${lecture.summary}</div>` : `<p><i>- 향후 강의자료 요약 내용으로 채워집니다. -</i></p>`;
                 const item = document.createElement('div');
                 item.className = 'lecture-item';
                 item.innerHTML = `<div class="lecture-title"><span>${lecture.title}</span><span class="professor-tag">${lecture.professor}</span></div><div class="content">${summaryContent}</div>`;
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('save-questions-btn').addEventListener('click', () => {
         const checkboxes = modalBody.querySelectorAll('.save-checkbox:checked');
         if (checkboxes.length === 0) {
-            alert('저장할 문제를 선택해주세요.'); return;
+            alert('저장할 문제를 먼저 선택해주세요.'); return;
         }
         let savedIds = JSON.parse(localStorage.getItem('myQuizIds') || '[]');
         checkboxes.forEach(cb => {

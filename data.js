@@ -1,20 +1,23 @@
 const latestLectureData = {
     "title": "Chapter 1: Overview of Cells & Cell Research",
     "professor": "김성찬",
-    "summary": "세포생물학의 기초를 다지는 강의입니다. 세포의 기본 단위인 원핵세포와 진핵세포의 구조적 차이점을 이해하고, 세포 연구에 필수적인 현미경 기술, 세포 배양법, 그리고 다양한 모델 생물의 중요성에 대해 학습합니다. 특히, 유전 정보의 흐름인 중심 원리(Central Dogma)와 줄기세포(ES cell, iPS cell)의 개념은 앞으로의 학습에 계속해서 활용될 핵심 내용입니다.",
+    "summary": `이 챕터는 세포생물학의 가장 기본이 되는 개념들을 다루며, 앞으로 배울 모든 내용의 기초가 됩니다. 전체적인 흐름은 '세포란 무엇인가?'에서 시작하여 '세포를 어떻게 연구하는가?'로 이어집니다.
+
+- **핵심 암기 사항:**
+  - **세포 이론(Cell Theory):** 모든 생명체는 세포로 이루어져 있으며, 세포는 기존 세포로부터만 생성된다는 기본 원리.
+  - **원핵/진핵 구분:** 막으로 둘러싸인 핵과 세포소기관의 유무가 가장 큰 차이점. (Eukaryotic / Prokaryotic)
+  - **중심 원리(Central Dogma):** DNA →(Transcription)→ RNA →(Translation)→ Protein. RNA에서 DNA로 가는 **역전사(Reverse transcription)** 과정도 매우 중요.
+
+- **[!!] 기출 연관 중요 개념:**
+  - **결합 조직(Connective tissue):** 뼈(osteoblast), 연골(chondrocyte), 지방(adipocyte) 등을 포함하는 조직. 2023년 1차 시험에서 출제되었습니다. 종류를 꼭 암기하세요.
+  - **유도만능줄기세포(iPS cells):** 성체 세포를 역분화시켜 만든 배아줄기세포 유사 세포. 정의와 개념을 묻는 문제가 2023년 1차 시험에 출제될 만큼 중요한 토픽입니다.
+
+- **주요 연구 기법:**
+  - 세포를 관찰하는 **현미경(Microscopy)**, 세포를 키우는 **세포 배양(Cell culture)**, 그리고 연구에 사용되는 **모델 생물(Model organisms)**의 종류와 특징을 알아두어야 합니다.`,
     "reviewQuiz": [
-        {
-            "question": "세포를 구조와 복잡성에 따라 나누는 두 가지 주요 유형은 무엇인가요?",
-            "answer": "원핵세포(Prokaryotic cells)와 진핵세포(Eukaryotic cells)"
-        },
-        {
-            "question": "RNA를 주형으로 사용하여 DNA를 합성하는 과정을 무엇이라고 하나요?",
-            "answer": "역전사 (Reverse transcription)"
-        },
-        {
-            "question": "성인의 체세포를 재프로그래밍하여 만드는 배아줄기세포와 유사한 만능 줄기세포를 무엇이라고 하나요?",
-            "answer": "유도만능줄기세포 (iPS cells - induced pluripotent stem cells)"
-        }
+        { "question": "세포를 구조와 복잡성에 따라 나누는 두 가지 주요 유형은 무엇인가요?", "answer": "원핵세포(Prokaryotic cells)와 진핵세포(Eukaryotic cells)" },
+        { "question": "RNA를 주형으로 사용하여 DNA를 합성하는 과정을 무엇이라고 하나요?", "answer": "역전사 (Reverse transcription)" },
+        { "question": "성인의 체세포를 재프로그래밍하여 만드는 배아줄기세포와 유사한 만능 줄기세포를 무엇이라고 하나요?", "answer": "유도만능줄기세포 (iPS cells - induced pluripotent stem cells)" }
     ]
 };
 
@@ -23,7 +26,19 @@ const lectureData = [
         "id": 1, 
         "title": "Chapter 1: Overview of Cells & Cell Research", 
         "professor": "김성찬",
-        "summary": "세포는 생명체의 기본 단위이며, 모든 세포는 기존 세포로부터 분열하여 생성됩니다. 세포는 크게 원핵세포와 진핵세포로 나뉩니다. 세포 연구에는 광학 현미경, 형광 현미경, 전자 현미경 등 다양한 현미경 기술이 사용되며, 세포 배양 기술을 통해 실험실 환경에서 세포를 연구할 수 있습니다. E. coli, 효모, C. elegans, 초파리, 생쥐 등은 세포의 기본 원리를 이해하는 데 중요한 모델 생물입니다."
+        "summary": `이 챕터는 세포생물학의 가장 기본이 되는 개념들을 다루며, 앞으로 배울 모든 내용의 기초가 됩니다. 전체적인 흐름은 '세포란 무엇인가?'에서 시작하여 '세포를 어떻게 연구하는가?'로 이어집니다.
+
+- **핵심 암기 사항:**
+  - **세포 이론(Cell Theory):** 모든 생명체는 세포로 이루어져 있으며, 세포는 기존 세포로부터만 생성된다는 기본 원리.
+  - **원핵/진핵 구분:** 막으로 둘러싸인 핵과 세포소기관의 유무가 가장 큰 차이점. (Eukaryotic / Prokaryotic)
+  - **중심 원리(Central Dogma):** DNA →(Transcription)→ RNA →(Translation)→ Protein. RNA에서 DNA로 가는 **역전사(Reverse transcription)** 과정도 매우 중요.
+
+- **[!!] 기출 연관 중요 개념:**
+  - **결합 조직(Connective tissue):** 뼈(osteoblast), 연골(chondrocyte), 지방(adipocyte) 등을 포함하는 조직. 2023년 1차 시험에서 출제되었습니다. 종류를 꼭 암기하세요.
+  - **유도만능줄기세포(iPS cells):** 성체 세포를 역분화시켜 만든 배아줄기세포 유사 세포. 정의와 개념을 묻는 문제가 2023년 1차 시험에 출제될 만큼 중요한 토픽입니다.
+
+- **주요 연구 기법:**
+  - 세포를 관찰하는 **현미경(Microscopy)**, 세포를 키우는 **세포 배양(Cell culture)**, 그리고 연구에 사용되는 **모델 생물(Model organisms)**의 종류와 특징을 알아두어야 합니다.`
     },
     { "id": 2, "title": "Chapter 2: Molecules and Membranes", "professor": "김재봉", "summary": "" },
     { "id": 3, "title": "Chapter 3: Bioenergetics and Metabolism", "professor": "김재봉", "summary": "" },
