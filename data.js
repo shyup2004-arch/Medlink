@@ -1,98 +1,42 @@
-const latestLectureData = {
-    "title": "Chapter 1: Overview of Cells & Cell Research",
-    "professor": "김성찬",
-    "summary": `이 챕터는 세포생물학의 가장 기본이 되는 개념들을 다루며, 앞으로 배울 모든 내용의 기초가 됩니다. 전체적인 흐름은 '세포란 무엇인가?'에서 시작하여 '세포를 어떻게 연구하는가?'로 이어집니다.
-<br>
-<h4>🔑 핵심 암기 사항</h4>
-<ul>
-    <li><strong>세포 이론(Cell Theory):</strong> 모든 생명체는 세포로 이루어져 있으며, 세포는 기존 세포로부터만 생성된다는 기본 원리.</li>
-    <li><strong>원핵/진핵 구분:</strong> 막으로 둘러싸인 핵과 세포소기관의 유무가 가장 큰 차이점. (<strong>Eukaryotic / Prokaryotic</strong>)</li>
-</ul>
-<div class="diagram">
-    <strong>DNA</strong>
-    <span class="arrow">→ Transcription →</span>
-    <strong>RNA</strong>
-    <span class="arrow">→ Translation →</span>
-    <strong>Protein</strong>
-    <br>
-    <small>(중심 원리 - Central Dogma)</small>
-</div>
-<p style="margin-top: 5px;">* RNA에서 DNA로 가는 <strong>역전사(Reverse transcription)</strong> 과정도 매우 중요합니다.</p>
+// 최신 강의 데이터는 첫 강의 시작 전이므로 비워둡니다.
+const latestLectureData = null;
 
-<h4><span class="text-red">❗️ 기출 연관 중요 개념</span></h4>
-<ul>
-    <li><strong>결합 조직(Connective tissue):</strong> 뼈(osteoblast), 연골(chondrocyte), 지방(adipocyte) 등을 포함. <span class="text-red">2023년 1차 시험 출제!</span> 종류 암기 필수.</li>
-    <li><strong>유도만능줄기세포(iPS cells):</strong> 성체 세포를 역분화시켜 만든 배아줄기세포 유사 세포. <span class="text-red">2023년 1차 시험 출제!</span> 정의를 정확히 알아두세요.</li>
-</ul>
-
-<h4>🧪 주요 연구 기법</h4>
-<ul>
-    <li>세포 관찰을 위한 <strong>현미경(Microscopy)</strong></li>
-    <li>세포를 키우는 <strong>세포 배양(Cell culture)</strong></li>
-    <li>연구에 사용되는 <strong>모델 생물(Model organisms)</strong>의 종류와 특징</li>
-</ul>`,
-    "reviewQuiz": [
-        { "question": "세포를 구조와 복잡성에 따라 나누는 두 가지 주요 유형은 무엇인가요?", "answer": "원핵세포(Prokaryotic cells)와 진핵세포(Eukaryotic cells)" },
-        { "question": "RNA를 주형으로 사용하여 DNA를 합성하는 과정을 무엇이라고 하나요?", "answer": "역전사 (Reverse transcription)" },
-        { "question": "성인의 체세포를 재프로그래밍하여 만드는 배아줄기세포와 유사한 만능 줄기세포를 무엇이라고 하나요?", "answer": "유도만능줄기세포 (iPS cells - induced pluripotent stem cells)" }
-    ]
-};
-
+// 2025년 셀력 PDF를 기반으로 한 새로운 강의 데이터입니다.
 const lectureData = [
-    { 
-        "id": 1, 
-        "title": "Chapter 1: Overview of Cells & Cell Research", 
-        "professor": "김성찬",
-        "summary": `이 챕터는 세포생물학의 가장 기본이 되는 개념들을 다루며, 앞으로 배울 모든 내용의 기초가 됩니다. 전체적인 흐름은 '세포란 무엇인가?'에서 시작하여 '세포를 어떻게 연구하는가?'로 이어집니다.
-<br>
-<h4>🔑 핵심 암기 사항</h4>
-<ul>
-    <li><strong>세포 이론(Cell Theory):</strong> 모든 생명체는 세포로 이루어져 있으며, 세포는 기존 세포로부터만 생성된다는 기본 원리.</li>
-    <li><strong>원핵/진핵 구분:</strong> 막으로 둘러싸인 핵과 세포소기관의 유무가 가장 큰 차이점. (<strong>Eukaryotic / Prokaryotic</strong>)</li>
-</ul>
-<div class="diagram">
-    <strong>DNA</strong>
-    <span class="arrow">→ Transcription →</span>
-    <strong>RNA</strong>
-    <span class="arrow">→ Translation →</span>
-    <strong>Protein</strong>
-    <br>
-    <small>(중심 원리 - Central Dogma)</small>
-</div>
-<p style="margin-top: 5px;">* RNA에서 DNA로 가는 <strong>역전사(Reverse transcription)</strong> 과정도 매우 중요합니다.</p>
-
-<h4><span class="text-red">❗️ 기출 연관 중요 개념</span></h4>
-<ul>
-    <li><strong>결합 조직(Connective tissue):</strong> 뼈(osteoblast), 연골(chondrocyte), 지방(adipocyte) 등을 포함. <span class="text-red">2023년 1차 시험 출제!</span> 종류 암기 필수.</li>
-    <li><strong>유도만능줄기세포(iPS cells):</strong> 성체 세포를 역분화시켜 만든 배아줄기세포 유사 세포. <span class="text-red">2023년 1차 시험 출제!</span> 정의를 정확히 알아두세요.</li>
-</ul>
-
-<h4>🧪 주요 연구 기법</h4>
-<ul>
-    <li>세포 관찰을 위한 <strong>현미경(Microscopy)</strong></li>
-    <li>세포를 키우는 <strong>세포 배양(Cell culture)</strong></li>
-    <li>연구에 사용되는 <strong>모델 생물(Model organisms)</strong>의 종류와 특징</li>
-</ul>`
-    },
-    { "id": 2, "title": "Chapter 2: Molecules and Membranes", "professor": "김재봉", "summary": "" },
-    { "id": 3, "title": "Chapter 3: Bioenergetics and Metabolism", "professor": "김재봉", "summary": "" },
-    { "id": 4, "title": "Chapter 4: Fundamentals of Molecular Biology", "professor": "김성찬", "summary": "" },
-    { "id": 5, "title": "Chapter 5, 6: Cellular Genomes & Bioinformatics", "professor": "김성찬", "summary": "" },
-    { "id": 7, "title": "Chapter 7: Replication and Repair", "professor": "이규영", "summary": "" },
-    { "id": 8, "title": "Chapter 8, 9: RNA Synthesis and Processing", "professor": "김재봉", "summary": "" },
-    { "id": 10, "title": "Chapter 10: Protein Synthesis, Processing, Regulation", "professor": "조현주 (예정)", "summary": "" },
-    { "id": 11, "title": "Chapter 11: The Nucleus", "professor": "이규영", "summary": "" },
-    { "id": 12, "title": "Chapter 12: Protein Sorting and Transport", "professor": "김성찬", "summary": "" },
-    { "id": 13, "title": "Chapter 13: Mitochondria and Peroxisomes", "professor": "김성찬", "summary": "" },
-    { "id": 14, "title": "Chapter 14: The Cytoskeleton and Cell Movement", "professor": "조현주 (예정)", "summary": "" },
-    { "id": 15, "title": "Chapter 15: The Plasma Membrane", "professor": "조현주 (예정)", "summary": "" },
-    { "id": 16, "title": "Chapter 16: Cell Wall and Interaction", "professor": "조현주 (예정)", "summary": "" },
-    { "id": 17, "title": "Chapter 17: Cell Signaling", "professor": "김재봉", "summary": "" },
-    { "id": 18, "title": "Chapter 18: The Cell Cycle", "professor": "이규영", "summary": "" },
-    { "id": 19, "title": "Chapter 19: Cell Death and Renewal", "professor": "김재봉", "summary": "" },
-    { "id": 20, "title": "Chapter 20: Cancer", "professor": "이규영", "summary": "" }
+    { "id": 1, "title": "Ch.1: An Overview of Cells and Cell Research", "professor": "김성찬", "summary": "" },
+    { "id": 2, "title": "Ch.2: Molecules and Membrane", "professor": "김재봉", "summary": "" },
+    { "id": 3, "title": "Ch.3: Bioenergetics and Metabolism", "professor": "김재봉", "summary": "" },
+    { "id": 4, "title": "Ch.4: Fundamentals of Molecular Biology", "professor": "김성찬", "summary": "" },
+    { "id": 5, "title": "Ch.5: Genomics", "professor": "김성찬", "summary": "" },
+    { "id": 6, "title": "Ch.5: Proteomics, and System Biology", "professor": "김성찬", "summary": "" },
+    { "id": 7, "title": "Ch.6: Genes and Genomes", "professor": "김성찬", "summary": "" },
+    { "id": 8, "title": "Ch.7: DNA Replication and Repair", "professor": "이규영", "summary": "" },
+    { "id": 9, "title": "Ch.7: DNA Rearrangements", "professor": "이규영", "summary": "" },
+    { "id": 10, "title": "Ch.8: RNA synthesis (transcription)", "professor": "김재봉", "summary": "" },
+    { "id": 11, "title": "Ch.8: RNA processing", "professor": "김재봉", "summary": "" },
+    { "id": 12, "title": "Ch.9(10): Protein Synthesis (translation)", "professor": "조현주", "summary": "" },
+    { "id": 13, "title": "Ch.9(10): Regulation of Protein Fuction", "professor": "조현주", "summary": "" },
+    { "id": 14, "title": "Ch.10(11): Nuclear Envelope", "professor": "이규영", "summary": "" },
+    { "id": 15, "title": "Ch.10(11): rRNA processing", "professor": "이규영", "summary": "" },
+    { "id": 16, "title": "Ch.11(12): Protein Sorting", "professor": "김성찬", "summary": "" },
+    { "id": 17, "title": "Ch.11(12): Protein Transport", "professor": "김성찬", "summary": "" },
+    { "id": 18, "title": "Ch.12(13): Mitochondria/Peroxisomes", "professor": "김성찬", "summary": "" },
+    { "id": 19, "title": "Ch.13(14): Cytoskeleton", "professor": "조현주", "summary": "" },
+    { "id": 20, "title": "Ch.13(14): Cell Movement", "professor": "조현주", "summary": "" },
+    { "id": 21, "title": "Ch.14(15): Plasma Membrane-1", "professor": "조현주", "summary": "" },
+    { "id": 22, "title": "Ch.14(15): Plasma Membrane-2", "professor": "조현주", "summary": "" },
+    { "id": 23, "title": "Ch.15(16): Cell Wall", "professor": "조현주", "summary": "" },
+    { "id": 24, "title": "Ch.15(16): Cell Interaction", "professor": "조현주", "summary": "" },
+    { "id": 25, "title": "Ch.16(17): Cell Signaling", "professor": "김재봉", "summary": "" },
+    { "id": 26, "title": "Ch.16(17): Cell Signaling", "professor": "김재봉", "summary": "" },
+    { "id": 27, "title": "Ch.17(18): Cell Cycle", "professor": "이규영", "summary": "" },
+    { "id": 28, "title": "Ch.17(18): Cell Cycle", "professor": "이규영", "summary": "" },
+    { "id": 29, "title": "Ch.18(19): Cell Death", "professor": "김재봉", "summary": "" },
+    { "id": 30, "title": "Ch.18(19): Cell Renewal", "professor": "김재봉", "summary": "" },
+    { "id": 31, "title": "Ch.19(20): Cancer", "professor": "이규영", "summary": "" }
 ];
 
+// 과거 기출문제 데이터는 그대로 유지됩니다.
 const questionData = [
     { "id": 101, "chapter": [4], "professor": "김성찬", "exam": "1차", "question": "A ( ) segment of DNA that is expressed to yield a functional product. (e.g., rRNA, tRNA or a polypeptide)", "answer": "gene" },
     { "id": 102, "chapter": [1], "professor": "김성찬", "exam": "1차", "question": "( ) include bone(osteoblast), cartilage(chondrocyte), and adipose (adipocyte) tissue.", "answer": "Connective tissue" },

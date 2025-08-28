@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- App Version ---
-    const APP_VERSION = "v1.10 (Test)";
+    const APP_VERSION = "v2.0";
 
     // --- DOM Elements ---
     const archiveList = document.getElementById('archive-list');
