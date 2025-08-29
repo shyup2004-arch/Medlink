@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- App Version ---
-    const APP_VERSION = "v2.2";
+    const APP_VERSION = "v2.3";
 
     // --- Global State ---
     let lectureData = [];
@@ -18,17 +18,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll('.nav-link');
     const views = document.querySelectorAll('.view');
     const latestReviewContent = document.getElementById('latest-review-content');
+    const essayQuestionContainer = document.getElementById('essay-question-container');
+
 
     // --- Firebase Data Loading ---
     function initializeApp() {
         document.getElementById('app-version').textContent = APP_VERSION;
         
-        // Check if firebase and database are initialized
         if (typeof firebase === 'undefined' || typeof database === 'undefined') {
-            const errorMsg = "<p style='color: red; font-weight: bold;'>[오류] Firebase 초기화 실패.<br>firebase-config.js 파일의 내용이 올바른지, firebase.initializeApp()이 호출되었는지 확인해주세요.</p>";
+            const errorMsg = "<p style='color: red; font-weight: bold;'>[오류] Firebase 초기화 실패.</p>";
             archiveList.innerHTML = errorMsg;
             latestReviewContent.innerHTML = errorMsg;
-            console.error("Firebase is not initialized. Check firebase-config.js");
             return;
         }
 
@@ -36,25 +36,24 @@ document.addEventListener('DOMContentLoaded', function() {
         dbRef.on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                console.log("Firebase data loaded successfully.");
                 lectureData = data.lectures ? Object.values(data.lectures) : [];
                 questionData = data.questions ? Object.values(data.questions) : [];
                 latestLectureData = data.latestLecture || null;
                 
-                // Once data is loaded, setup the entire app
                 setupEventListeners();
                 renderLatestReview();
                 renderArchive();
                 populateChapterSelect();
+                renderEssayQuestions(); // New function call
                 switchView('review-view');
             } else {
-                const errorMsg = "<p style='color: red; font-weight: bold;'>[오류] Firebase에서 데이터를 찾을 수 없습니다.<br>Firebase Realtime Database에 initial-data.json이 올바르게 업로드되었는지 확인해주세요.</p>";
+                const errorMsg = "<p style='color: red; font-weight: bold;'>[오류] Firebase에서 데이터를 찾을 수 없습니다.</p>";
                 archiveList.innerHTML = errorMsg;
                 latestReviewContent.innerHTML = errorMsg;
             }
         }, (error) => {
             console.error(error);
-            const errorMsg = `<p style='color: red; font-weight: bold;'>[오류] 데이터 로딩 중 문제가 발생했습니다.<br>인터넷 연결 및 firebase-config.js의 설정이 올바른지 확인해주세요.</p>`;
+            const errorMsg = `<p style='color: red; font-weight: bold;'>[오류] 데이터 로딩 중 문제가 발생했습니다.</p>`;
             archiveList.innerHTML = errorMsg;
             latestReviewContent.innerHTML = errorMsg;
         });
@@ -70,14 +69,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function renderLatestReview() {
         if (latestLectureData) {
-            // ... (render logic is the same)
+            // ... (same as v2.2)
         } else {
             latestReviewContent.innerHTML = '<p>새로운 강의 자료가 추가되면 여기에 표시됩니다.</p>';
         }
     }
 
     function renderArchive(filter = '') {
-        // ... (render logic is the same)
+        // ... (same as v2.2)
         archiveList.innerHTML = '';
         const query = filter.toLowerCase();
         
@@ -115,8 +114,38 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function renderEssayQuestions() {
+        essayQuestionContainer.innerHTML = '';
+        // Find essay questions from the questionData
+        const essayQuestions = questionData.filter(q => q.question.includes('설명하시오') || q.question.includes('과정에 대해'));
+        
+        if (essayQuestions.length === 0) {
+            essayQuestionContainer.innerHTML = '<p>연습할 서술형 문제가 아직 없습니다.</p>';
+            return;
+        }
+
+        essayQuestions.forEach(q => {
+            const item = document.createElement('div');
+            item.className = 'essay-item';
+            item.dataset.id = q.id;
+            item.innerHTML = `
+                <div class="essay-item-header">
+                    <h3 class="essay-question">${q.question}</h3>
+                    <span class="professor-tag">${q.professor} (${q.exam})</span>
+                </div>
+                <textarea class="essay-answer-area" placeholder="이곳에 답안을 작성해주세요..."></textarea>
+                <button class="action-button grade-essay-btn" style="width: 100%;">AI 채점하기</button>
+                <div class="essay-feedback-area">
+                    <h4>📝 AI 채점 결과</h4>
+                    <div class="feedback-content"><p>채점 대기 중...</p></div>
+                </div>
+            `;
+            essayQuestionContainer.appendChild(item);
+        });
+    }
+
     function populateChapterSelect() {
-        // ... (function logic is the same)
+        // ... (same as v2.2)
         chapterSelect.innerHTML = '<option value="all">전체 단원</option>';
         lectureData.forEach(lecture => {
             const option = document.createElement('option');
@@ -127,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function displayQuestionsInModal(questions, title) {
-        // ... (function logic is the same)
+        // ... (same as v2.2)
         modalTitle.textContent = title;
         modalBody.innerHTML = '';
         const isMyQuiz = (title === '나만의 문제집');
@@ -160,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function removeQuestionFromMyQuiz(questionId) {
-        // ... (function logic is the same)
+        // ... (same as v2.2)
         let savedIds = JSON.parse(localStorage.getItem('myQuizIds') || '[]');
         savedIds = savedIds.filter(id => id !== questionId);
         localStorage.setItem('myQuizIds', JSON.stringify(savedIds));
@@ -170,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function switchView(targetId) {
-        // ... (function logic is the same)
+        // ... (same as v2.2)
         views.forEach(view => view.classList.remove('active-view'));
         const targetView = document.getElementById(targetId);
         if (targetView) {
@@ -189,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function toggleSidebar(forceOpen) {
-        // ... (function logic is the same)
+        // ... (same as v2.2)
         if (typeof forceOpen === 'boolean') {
             sidebar.classList.toggle('open', forceOpen);
         } else {
@@ -201,8 +230,14 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupEventListeners() {
         document.body.addEventListener('click', function(e) {
             const title = e.target.closest('.lecture-title, .question-title');
-            if (title && !e.target.closest('.question-item')) { // Modal 내부는 별도 처리
+            if (title && !e.target.closest('.question-item')) {
                 toggleContent(title);
+            }
+            
+            // Handle AI Grading Button click
+            const gradeBtn = e.target.closest('.grade-essay-btn');
+            if (gradeBtn) {
+                alert('AI 채점 기능은 현재 개발 중입니다. 곧 업데이트될 예정입니다!');
             }
         });
 

@@ -82,6 +82,47 @@ body {
 .view.active-view { display: block; animation: fadeIn 0.3s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+/* Essay Question Styles */
+.essay-item {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+.essay-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+.essay-question {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin: 0;
+}
+.essay-answer-area {
+    width: 100%;
+    min-height: 150px;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    line-height: 1.6;
+    resize: vertical;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+}
+.essay-feedback-area {
+    border-top: 1px solid var(--border-color);
+    margin-top: 1rem;
+    padding-top: 1rem;
+    display: none; /* Initially hidden */
+}
+.essay-feedback-area h4 {
+    margin-top: 0;
+    color: var(--accent-color);
+}
+
 /* Summary Content Styles */
 .summary-box h4 { margin-top: 20px; margin-bottom: 10px; font-size: 1.1em; }
 .summary-box ul { padding-left: 20px; margin: 0; }
