@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (dataToRender.length > 0) {
              if (query) archiveList.innerHTML += '<h3>관련 강의</h3>';
              dataToRender.forEach(lecture => {
-                const summaryContent = lecture.summary ? `<div class="summary-box">${lecture.summary}</div>` : `<p><i>- 향후 강의자료 요약 내용으로 채워집니다. -</i></p>`;
+                const summaryContent = lecture.summary ? `<div class="summary-box">${lecture.summary}</div>` : `<p><i>- 예습 요약이 곧 추가될 예정입니다. -</i></p>`;
                 const dateTag = lecture.date ? `<span class="date-tag">${lecture.date}</span>` : '';
                 const item = document.createElement('div');
                 item.className = 'lecture-item';
@@ -65,13 +65,18 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         if (query) {
-            const matchingQuestions = questionData.filter(q => q.question.toLowerCase().includes(query) || q.answer.toLowerCase().includes(query) || q.professor.toLowerCase().includes(query));
+            const allQuestions = [...questionData, ...aiQuestionData];
+            const matchingQuestions = allQuestions.filter(q => q.question.toLowerCase().includes(query) || q.answer.toLowerCase().includes(query) || (q.professor && q.professor.toLowerCase().includes(query)));
             if (matchingQuestions.length > 0) {
                 archiveList.innerHTML += '<h3 style="margin-top:20px;">관련 문제</h3>';
                 matchingQuestions.forEach(q => {
+                    const isAI = q.id.toString().startsWith('ai_');
+                    const sourceTag = isAI 
+                        ? `<span class="professor-tag" style="background-color: #e2e8f0;">AI 예상</span>`
+                        : `<span class="professor-tag">${q.professor} (${q.exam})</span>`;
                     const item = document.createElement('div');
                     item.className = 'question-item';
-                    item.innerHTML = `<div class="question-title"><span>${q.question}</span><span class="professor-tag">${q.professor} (${q.exam})</span></div><div class="content"><pre>${q.answer}</pre></div>`;
+                    item.innerHTML = `<div class="question-title"><span>${q.question}</span>${sourceTag}</div><div class="content"><pre>${q.answer}</pre></div>`;
                     archiveList.appendChild(item);
                 });
             }
@@ -192,7 +197,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('generate-exam-mock-btn').addEventListener('click', () => {
         const examNum = document.getElementById('exam-range-select').value;
         const range = examRanges[examNum];
-        const questions = questionData.filter(q => q.chapter.some(c => range.chapters.includes(c)));
+        const questions = questionData.filter(q => {
+            return q.chapter.some(c => range.chapters.includes(c));
+        });
         displayQuestionsInModal(questions, `${range.name} 실전 기출 모의고사`, 'exam');
     });
 
@@ -228,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         let savedIds = JSON.parse(localStorage.getItem('myQuizIds') || '[]');
         checkboxes.forEach(cb => {
-            const id = parseInt(cb.closest('.question-item').dataset.id);
+            const id = cb.closest('.question-item').dataset.id;
             if (!savedIds.includes(id)) savedIds.push(id);
         });
         localStorage.setItem('myQuizIds', JSON.stringify(savedIds));
