@@ -17,14 +17,8 @@
             <nav class="sidebar-nav">
                 <a href="#" class="nav-link active" data-target="review-view"><i class="fas fa-star"></i> 최신 강의 복습</a>
                 <a href="#" class="nav-link" data-target="archive-view"><i class="fas fa-archive"></i> 강의 아카이브</a>
-                <details class="nav-group">
-                    <summary class="nav-link"><i class="fas fa-pencil-alt"></i> 문제 은행</summary>
-                    <div class="nav-submenu">
-                        <a href="#" class="nav-link" data-target="bank-view"><i class="fas fa-list-ul"></i> 단원별 문제은행</a>
-                        <a href="#" class="nav-link" data-target="mock-view"><i class="fas fa-file-alt"></i> 총괄 모의고사</a>
-                        <a href="#" class="nav-link" data-target="my-quiz-view"><i class="fas fa-bookmark"></i> 나만의 문제집</a>
-                    </div>
-                </details>
+                <a href="#" class="nav-link" data-target="exam-view"><i class="fas fa-scroll"></i> 📜 기출 문제</a>
+                <a href="#" class="nav-link" data-target="ai-exam-view"><i class="fas fa-robot"></i> 🤖 AI 실력 점검 (N제)</a>
             </nav>
             <div class="sidebar-footer">
                 <span id="app-version"></span>
@@ -38,16 +32,72 @@
             </header>
             
             <div id="view-container">
-                <div id="review-view" class="view active-view"><div class="section"><h2>🚀 최신 강의 핵심 복습</h2><div id="latest-review-content"></div></div></div>
-                <div id="archive-view" class="view"><div class="section"><input type="text" id="search-input" class="search-box" placeholder="강의 및 문제 전체에서 검색..."></div><div class="section"><h2>📚 강의 자료 아카이브</h2><div id="archive-list"></div></div></div>
-                <div id="bank-view" class="view"><div class="section"><h2>단원별 문제은행</h2><div id="chapter-selection" class="options-menu"><label for="chapter-select">단원 선택:</label><select id="chapter-select"></select><button id="generate-bank-btn" class="action-button">문제 보기</button></div></div></div>
-                <div id="mock-view" class="view"><div class="section"><h2>총괄 모의고사</h2><div id="quiz-options" class="options-menu"><label for="mock-exam-count">문제 수:</label><select id="mock-exam-count"><option value="10">10개</option><option value="20">20개</option><option value="30">30개</option><option value="50">50개</option></select><button id="generate-mock-btn" class="action-button">모의고사 시작</button></div></div></div>
-                <div id="my-quiz-view" class="view"><div class="section"><h2>나만의 문제집</h2><p>저장된 문제들을 확인하고 복습할 수 있습니다.</p><button id="show-my-quiz-btn" class="action-button" style="width: 100%; margin-top: 1rem;">나만의 문제집 열기</button></div></div>
+                <div id="review-view" class="view active-view">
+                    <div class="section">
+                        <h2>🚀 최신 강의 핵심 복습</h2>
+                        <div id="latest-review-content"></div>
+                    </div>
+                </div>
+
+                <div id="archive-view" class="view">
+                     <div class="section">
+                        <input type="text" id="search-input" class="search-box" placeholder="강의 및 문제 전체에서 검색...">
+                    </div>
+                    <div class="section">
+                        <h2>📚 강의 자료 아카이브</h2>
+                        <div id="archive-list"></div>
+                    </div>
+                </div>
+                
+                <div id="exam-view" class="view">
+                    <div class="section">
+                        <h2>📜 기출 문제</h2>
+                        <div class="mode-selection">
+                            <button class="mode-btn" data-mode="bank" data-type="exam"><i class="fas fa-list-ul"></i> 단원별 기출 은행</button>
+                            <button class="mode-btn" data-mode="mock" data-type="exam"><i class="fas fa-file-alt"></i> 실전 기출 모의고사</button>
+                        </div>
+                        <div id="exam-bank-options" class="options-menu" style="display:none;">
+                            <label for="exam-chapter-select">단원 선택:</label>
+                            <select id="exam-chapter-select"></select>
+                            <button id="generate-exam-bank-btn" class="action-button">문제 보기</button>
+                        </div>
+                        <div id="exam-mock-options" class="options-menu" style="display:none;">
+                            <label for="exam-range-select">시험 범위 선택:</label>
+                            <select id="exam-range-select">
+                                <option value="1">1차 시험 (Ch.1 ~ 6)</option>
+                                <option value="2">2차 시험 (Ch.7 ~ 9)</option>
+                                <option value="3">3차 시험 (Ch.10 ~ 14)</option>
+                                <option value="4">4차 시험 (Ch.15 ~ 19)</option>
+                            </select>
+                            <button id="generate-exam-mock-btn" class="action-button">모의고사 시작</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="ai-exam-view" class="view">
+                    <div class="section">
+                        <h2>🤖 AI 실력 점검 (N제)</h2>
+                         <p class="description">AI가 기출문제를 변형하거나 새로운 유형의 문제를 생성하여 당신의 실력을 점검합니다. (현재 준비 중인 기능입니다.)</p>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
-    <div id="quiz-modal"><div id="quiz-content"><div id="modal-header"><h2 id="modal-title"></h2><span id="close-modal">&times;</span></div><div id="modal-body"></div><div id="modal-footer"><button id="save-questions-btn" class="action-button" style="width:100%;">선택 문제 '나만의 문제집'에 추가</button></div></div></div>
-    
+
+    <div id="quiz-modal">
+        <div id="quiz-content">
+            <div id="modal-header">
+                <h2 id="modal-title"></h2>
+                <span id="close-modal">&times;</span>
+            </div>
+            <div id="modal-body"></div>
+            <div id="modal-footer">
+                 <button id="show-my-quiz-btn" class="action-button secondary">나만의 문제집 보기</button>
+                <button id="save-questions-btn" class="action-button">선택 문제 저장</button>
+            </div>
+        </div>
+    </div>
+
     <script src="data.js"></script> 
     <script src="app.js"></script>
 </body>

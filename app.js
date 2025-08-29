@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- App Version ---
-    const APP_VERSION = "v1.7 (Stable)";
+    const APP_VERSION = "v2.0";
 
     // --- DOM Elements ---
     const archiveList = document.getElementById('archive-list');
-    const chapterSelect = document.getElementById('chapter-select');
+    const chapterSelect = document.getElementById('exam-chapter-select');
     const searchInput = document.getElementById('search-input');
     const modal = document.getElementById('quiz-modal');
     const modalTitle = document.getElementById('modal-title');
@@ -13,6 +13,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll('.nav-link');
     const views = document.querySelectorAll('.view');
     const latestReviewContent = document.getElementById('latest-review-content');
+
+    // --- Exam Ranges ---
+    const examRanges = {
+        1: { name: "1차 시험", chapters: [1, 2, 3, 4, 5, 6] },
+        2: { name: "2차 시험", chapters: [7, 8, 9] },
+        3: { name: "3차 시험", chapters: [10, 11, 12, 13, 14] },
+        4: { name: "4차 시험", chapters: [15, 16, 17, 18, 19] }
+    };
 
     // --- Core Functions ---
     function toggleContent(element) {
@@ -24,8 +32,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function renderLatestReview() {
         if (typeof latestLectureData !== 'undefined' && latestLectureData) {
-            let quizHTML = (latestLectureData.reviewQuiz || []).map((quiz, index) => `<div class="question-item" style="padding: 10px; margin-top: 15px;"><div class="question-title"><span>Q${index + 1}. ${quiz.question}</span></div><div class="content"><pre>${quiz.answer}</pre></div></div>`).join('');
-            latestReviewContent.innerHTML = `<h4><strong>${latestLectureData.title}</strong> (${latestLectureData.professor})</h4><div class="summary-box">${latestLectureData.summary}</div><h4 style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;"><strong>🎯 핵심 확인 퀴즈</strong></h4>${quizHTML}`;
+            let quizHTML = (latestLectureData.reviewQuiz || []).map((quiz, index) => {
+                const isKichul = quiz.source;
+                const sourceTag = isKichul ? `<span class="professor-tag">${quiz.source}</span>` : `<span class="professor-tag" style="background-color: #e2e8f0;">AI 예상</span>`;
+                return `<div class="question-item" style="padding: 10px; margin-top: 15px;"><div class="question-title"><span>Q${index + 1}. ${quiz.question}</span>${sourceTag}</div><div class="content"><pre>${quiz.answer}</pre></div></div>`
+            }).join('');
+            latestReviewContent.innerHTML = `<h4><strong>${latestLectureData.title}</strong> (${latestLectureData.professor})</h4><div class="summary-box">${latestLectureData.summary}</div><h4 style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;"><strong>🎯 핵심 확인 기출/문제</strong></h4>${quizHTML}`;
         } else {
             latestReviewContent.innerHTML = '<p>새로운 강의 자료가 추가되면 여기에 표시됩니다.</p>';
         }
@@ -42,9 +54,10 @@ document.addEventListener('DOMContentLoaded', function() {
              if (query) archiveList.innerHTML += '<h3>관련 강의</h3>';
              dataToRender.forEach(lecture => {
                 const summaryContent = lecture.summary ? `<div class="summary-box">${lecture.summary}</div>` : `<p><i>- 향후 강의자료 요약 내용으로 채워집니다. -</i></p>`;
+                const dateTag = lecture.date ? `<span class="date-tag">${lecture.date}</span>` : '';
                 const item = document.createElement('div');
                 item.className = 'lecture-item';
-                item.innerHTML = `<div class="lecture-title"><span>${lecture.title}</span><span class="professor-tag">${lecture.professor}</span></div><div class="content">${summaryContent}</div>`;
+                item.innerHTML = `<div class="lecture-title"><span>${lecture.title}${dateTag}</span><span class="professor-tag">${lecture.professor}</span></div><div class="content">${summaryContent}</div>`;
                 archiveList.appendChild(item);
             });
         }
@@ -78,8 +91,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function displayQuestionsInModal(questions, title) {
         modalTitle.textContent = title;
         modalBody.innerHTML = '';
-        const isMyQuiz = (title === '나만의 문제집');
+        const isMyQuiz = (title === '⭐️ 나만의 문제집');
         document.getElementById('save-questions-btn').style.display = isMyQuiz ? 'none' : 'block';
+        document.getElementById('show-my-quiz-btn').style.display = isMyQuiz ? 'none' : 'block';
         if (questions.length === 0) {
             modalBody.innerHTML = '<p>표시할 문제가 없습니다.</p>';
             if (isMyQuiz) setTimeout(() => modal.style.display = 'none', 1000);
@@ -100,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
         savedIds = savedIds.filter(id => id !== questionId);
         localStorage.setItem('myQuizIds', JSON.stringify(savedIds));
         const savedQuestions = questionData.filter(q => savedIds.includes(q.id));
-        displayQuestionsInModal(savedQuestions, '나만의 문제집');
+        displayQuestionsInModal(savedQuestions, '⭐️ 나만의 문제집');
     }
 
     function switchView(targetId) {
@@ -111,9 +125,6 @@ document.addEventListener('DOMContentLoaded', function() {
             navLink.classList.remove('active');
             if(navLink.dataset.target === targetId) {
                 navLink.classList.add('active');
-                if (navLink.parentElement.classList.contains('nav-submenu')) {
-                    navLink.closest('.nav-group').open = true;
-                }
             }
         });
     }
@@ -130,6 +141,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.addEventListener('click', function(e) {
         const title = e.target.closest('.lecture-title, .question-title');
         if (title) toggleContent(title);
+
+        const modeBtn = e.target.closest('.mode-btn');
+        if(modeBtn) {
+            const type = modeBtn.dataset.type;
+            const mode = modeBtn.dataset.mode;
+            document.getElementById(`${type}-bank-options`).style.display = mode === 'bank' ? 'block' : 'none';
+            document.getElementById(`${type}-mock-options`).style.display = mode === 'mock' ? 'block' : 'none';
+        }
     });
 
     modalBody.addEventListener('click', function(e) {
@@ -143,28 +162,30 @@ document.addEventListener('DOMContentLoaded', function() {
     
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            if (link.tagName === 'A') {
-                e.preventDefault();
-                const targetId = link.dataset.target;
-                if(targetId) switchView(targetId);
-                if (window.innerWidth < 768) toggleSidebar(false);
-            }
+            e.preventDefault();
+            const targetId = link.dataset.target;
+            if(targetId) switchView(targetId);
+            if (window.innerWidth < 768) toggleSidebar(false);
         });
     });
     
     document.getElementById('sidebar-open-btn').addEventListener('click', () => toggleSidebar(true));
     document.getElementById('sidebar-close-btn').addEventListener('click', () => toggleSidebar(false));
 
-    document.getElementById('generate-bank-btn').addEventListener('click', () => {
+    document.getElementById('generate-exam-bank-btn').addEventListener('click', () => {
         const chapterId = chapterSelect.value;
         const questions = (chapterId === 'all') ? questionData : questionData.filter(q => q.chapter.includes(parseInt(chapterId)));
-        const title = (chapterId === 'all') ? '전체 단원 문제은행' : `${lectureData.find(l => l.id == chapterId).title} 문제은행`;
+        const title = (chapterId === 'all') ? '전체 단원 기출은행' : `${lectureData.find(l => l.id == chapterId).title} 기출은행`;
         displayQuestionsInModal(questions, title);
     });
-    document.getElementById('generate-mock-btn').addEventListener('click', () => {
-        const count = parseInt(document.getElementById('mock-exam-count').value);
-        const shuffled = [...questionData].sort(() => 0.5 - Math.random());
-        displayQuestionsInModal(shuffled.slice(0, count), `총괄 모의고사 (${count}문제)`);
+
+    document.getElementById('generate-exam-mock-btn').addEventListener('click', () => {
+        const examNum = document.getElementById('exam-range-select').value;
+        const range = examRanges[examNum];
+        const questions = questionData.filter(q => {
+            return q.chapter.some(c => range.chapters.includes(c));
+        });
+        displayQuestionsInModal(questions, `${range.name} 실전 기출 모의고사`);
     });
     
     document.getElementById('show-my-quiz-btn').addEventListener('click', () => {
@@ -173,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert("'나만의 문제집'이 비어있습니다."); return;
         }
         const savedQuestions = questionData.filter(q => savedIds.includes(q.id));
-        displayQuestionsInModal(savedQuestions, '나만의 문제집');
+        displayQuestionsInModal(savedQuestions, '⭐️ 나만의 문제집');
     });
 
     document.getElementById('save-questions-btn').addEventListener('click', () => {
