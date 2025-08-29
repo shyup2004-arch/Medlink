@@ -1,67 +1,20 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- App Version ---
-    const APP_VERSION = "v3.4 (Firestore)";
-
-    // --- Global State ---
-    let lectureData = [];
-    let questionData = [];
-    let latestLectureData = null;
+    const APP_VERSION = "v1.7 (Stable)";
 
     // --- DOM Elements ---
     const archiveList = document.getElementById('archive-list');
     const chapterSelect = document.getElementById('chapter-select');
-    // ... (other DOM elements are the same)
+    const searchInput = document.getElementById('search-input');
+    const modal = document.getElementById('quiz-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalBody = document.getElementById('modal-body');
+    const sidebar = document.getElementById('sidebar');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const views = document.querySelectorAll('.view');
     const latestReviewContent = document.getElementById('latest-review-content');
 
-    // --- App Initialization ---
-    function initializeApp() {
-        document.getElementById('app-version').textContent = APP_VERSION;
-        
-        try {
-            firebase.initializeApp(firebaseConfig);
-            const firestore = firebase.firestore();
-            loadDataFromFirestore(firestore);
-        } catch (e) {
-            displayError(`[오류] Firebase 초기화 실패: ${e.message}`);
-        }
-    }
-
-    async function loadDataFromFirestore(firestore) {
-        try {
-            const lecturesSnapshot = await firestore.collection('lectures').orderBy('id').get();
-            lecturesSnapshot.forEach(doc => lectureData.push(doc.data()));
-
-            const questionsSnapshot = await firestore.collection('questions').get();
-            questionsSnapshot.forEach(doc => questionData.push(doc.data()));
-            
-            // For now, latestLecture is disabled until new content is added
-            // const latestLectureSnapshot = await firestore.collection('utils').doc('latestLecture').get();
-            // if (latestLectureSnapshot.exists) {
-            //     latestLectureData = latestLectureSnapshot.data();
-            // }
-
-            if (lectureData.length === 0) {
-                 displayError("[오류] Firestore에서 강의 데이터를 찾을 수 없습니다. 데이터가 업로드되었는지 확인해주세요.");
-                 return;
-            }
-
-            // Render content now that we have data
-            renderLatestReview();
-            renderArchive();
-            populateChapterSelect();
-        } catch (error) {
-            console.error(error);
-            displayError(`[오류] 데이터 로딩 중 문제가 발생했습니다: ${error.message}`);
-        }
-    }
-    
-    function displayError(errorMessage) {
-        const errorHtml = `<p style='color: red; font-weight: bold;'>${errorMessage}</p>`;
-        archiveList.innerHTML = errorHtml;
-        latestReviewContent.innerHTML = errorHtml;
-    }
-
-    // --- Core Functions (No changes from here on) ---
+    // --- Core Functions ---
     function toggleContent(element) {
         const content = element.nextElementSibling;
         if (content) {
@@ -70,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function renderLatestReview() {
-        if (latestLectureData) {
+        if (typeof latestLectureData !== 'undefined' && latestLectureData) {
             let quizHTML = (latestLectureData.reviewQuiz || []).map((quiz, index) => `<div class="question-item" style="padding: 10px; margin-top: 15px;"><div class="question-title"><span>Q${index + 1}. ${quiz.question}</span></div><div class="content"><pre>${quiz.answer}</pre></div></div>`).join('');
             latestReviewContent.innerHTML = `<h4><strong>${latestLectureData.title}</strong> (${latestLectureData.professor})</h4><div class="summary-box">${latestLectureData.summary}</div><h4 style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;"><strong>🎯 핵심 확인 퀴즈</strong></h4>${quizHTML}`;
         } else {
@@ -123,8 +76,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function displayQuestionsInModal(questions, title) {
-        const modalTitle = document.getElementById('modal-title');
-        const modalBody = document.getElementById('modal-body');
         modalTitle.textContent = title;
         modalBody.innerHTML = '';
         const isMyQuiz = (title === '나만의 문제집');
@@ -141,9 +92,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 modalBody.appendChild(item);
             });
         }
-        document.getElementById('quiz-modal').style.display = 'block';
+        modal.style.display = 'block';
     }
-
+    
     function removeQuestionFromMyQuiz(questionId) {
         let savedIds = JSON.parse(localStorage.getItem('myQuizIds') || '[]');
         savedIds = savedIds.filter(id => id !== questionId);
@@ -153,8 +104,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function switchView(targetId) {
-        const views = document.querySelectorAll('.view');
-        const navLinks = document.querySelectorAll('.nav-link');
         views.forEach(view => view.classList.remove('active-view'));
         const targetView = document.getElementById(targetId);
         if (targetView) targetView.classList.add('active-view');
@@ -170,7 +119,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function toggleSidebar(forceOpen) {
-        const sidebar = document.getElementById('sidebar');
         if (typeof forceOpen === 'boolean') {
             sidebar.classList.toggle('open', forceOpen);
         } else {
@@ -184,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (title) toggleContent(title);
     });
 
-    document.getElementById('modal-body').addEventListener('click', function(e) {
+    modalBody.addEventListener('click', function(e) {
         const removeBtn = e.target.closest('.remove-btn');
         if (removeBtn) {
             e.stopPropagation();
@@ -193,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    document.querySelectorAll('.nav-link').forEach(link => {
+    navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             if (link.tagName === 'A') {
                 e.preventDefault();
@@ -208,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('sidebar-close-btn').addEventListener('click', () => toggleSidebar(false));
 
     document.getElementById('generate-bank-btn').addEventListener('click', () => {
-        const chapterId = document.getElementById('chapter-select').value;
+        const chapterId = chapterSelect.value;
         const questions = (chapterId === 'all') ? questionData : questionData.filter(q => q.chapter.includes(parseInt(chapterId)));
         const title = (chapterId === 'all') ? '전체 단원 문제은행' : `${lectureData.find(l => l.id == chapterId).title} 문제은행`;
         displayQuestionsInModal(questions, title);
@@ -229,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('save-questions-btn').addEventListener('click', () => {
-        const checkboxes = document.getElementById('modal-body').querySelectorAll('.save-checkbox:checked');
+        const checkboxes = modalBody.querySelectorAll('.save-checkbox:checked');
         if (checkboxes.length === 0) {
             alert('저장할 문제를 선택해주세요.'); return;
         }
@@ -243,15 +191,19 @@ document.addEventListener('DOMContentLoaded', function() {
         checkboxes.forEach(cb => cb.checked = false);
     });
     
-    document.getElementById('search-input').addEventListener('input', () => {
-        const query = document.getElementById('search-input').value;
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value;
         switchView('archive-view');
         renderArchive(query);
     });
 
-    document.getElementById('close-modal').addEventListener('click', () => document.getElementById('quiz-modal').style.display = 'none');
-    window.addEventListener('click', (e) => { if (e.target === document.getElementById('quiz-modal')) document.getElementById('quiz-modal').style.display = 'none'; });
+    document.getElementById('close-modal').addEventListener('click', () => modal.style.display = 'none');
+    window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
 
     // --- Initial Load ---
-    initializeApp();
+    document.getElementById('app-version').textContent = APP_VERSION;
+    renderLatestReview();
+    renderArchive();
+    populateChapterSelect();
+    switchView('review-view');
 });
