@@ -33,8 +33,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderLatestReview() {
         if (typeof latestLectureData !== 'undefined' && latestLectureData) {
             let quizHTML = (latestLectureData.reviewQuiz || []).map((quiz, index) => {
-                const isKichul = quiz.source;
-                const sourceTag = isKichul ? `<span class="professor-tag">${quiz.source}</span>` : `<span class="professor-tag" style="background-color: #e2e8f0;">AI 예상</span>`;
+                const isKichul = quiz.source && quiz.source.includes('기출');
+                const sourceTag = isKichul 
+                    ? `<span class="professor-tag">${quiz.source}</span>` 
+                    : `<span class="professor-tag" style="background-color: #e2e8f0;">AI 예상</span>`;
                 return `<div class="question-item" style="padding: 10px; margin-top: 15px;"><div class="question-title"><span>Q${index + 1}. ${quiz.question}</span>${sourceTag}</div><div class="content"><pre>${quiz.answer}</pre></div></div>`
             }).join('');
             latestReviewContent.innerHTML = `<h4><strong>${latestLectureData.title}</strong> (${latestLectureData.professor})</h4><div class="summary-box">${latestLectureData.summary}</div><h4 style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;"><strong>🎯 핵심 확인 기출/문제</strong></h4>${quizHTML}`;
@@ -78,13 +80,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function populateChapterSelect() {
+    function populateChapterSelects() {
         chapterSelect.innerHTML = '<option value="all">전체 단원</option>';
         lectureData.forEach(lecture => {
             const option = document.createElement('option');
             option.value = lecture.id;
             option.textContent = lecture.title;
-            chapterSelect.appendChild(option);
+            chapterSelect.appendChild(option.cloneNode(true));
         });
     }
 
@@ -113,7 +115,8 @@ document.addEventListener('DOMContentLoaded', function() {
         let savedIds = JSON.parse(localStorage.getItem('myQuizIds') || '[]');
         savedIds = savedIds.filter(id => id !== questionId);
         localStorage.setItem('myQuizIds', JSON.stringify(savedIds));
-        const savedQuestions = questionData.filter(q => savedIds.includes(q.id));
+        const allQuestions = questionData; // Simplified for now
+        const savedQuestions = allQuestions.filter(q => savedIds.includes(q.id));
         displayQuestionsInModal(savedQuestions, '⭐️ 나만의 문제집');
     }
 
@@ -172,6 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('sidebar-open-btn').addEventListener('click', () => toggleSidebar(true));
     document.getElementById('sidebar-close-btn').addEventListener('click', () => toggleSidebar(false));
 
+    // Exam Button Listeners
     document.getElementById('generate-exam-bank-btn').addEventListener('click', () => {
         const chapterId = chapterSelect.value;
         const questions = (chapterId === 'all') ? questionData : questionData.filter(q => q.chapter.includes(parseInt(chapterId)));
@@ -225,6 +229,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('app-version').textContent = APP_VERSION;
     renderLatestReview();
     renderArchive();
-    populateChapterSelect();
+    populateChapterSelects();
     switchView('review-view');
 });
