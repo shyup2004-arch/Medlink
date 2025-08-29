@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- App Version ---
-    const APP_VERSION = "v3.0";
+    const APP_VERSION = "v3.1 (Diagnostic)";
 
     // --- Global State ---
     let lectureData = [];
@@ -23,14 +23,22 @@ document.addEventListener('DOMContentLoaded', function() {
     function initializeApp() {
         document.getElementById('app-version').textContent = APP_VERSION;
         
-        if (typeof firebase === 'undefined') {
-            const errorMsg = "<p style='color: red; font-weight: bold;'>[오류] Firebase를 불러올 수 없습니다.</p>";
-            archiveList.innerHTML = errorMsg;
-            latestReviewContent.innerHTML = errorMsg;
+        // **DIAGNOSTIC STEP 1**: Check if Firebase SDKs are loaded
+        if (typeof firebase === 'undefined' || typeof firebase.initializeApp === 'undefined' || typeof firebase.database === 'undefined') {
+            const errorMsg = "<p style='color: red; font-weight: bold;'>[오류] Firebase SDK를 불러오지 못했습니다.<br>index.html 파일에 Firebase 스크립트가 올바르게 포함되었는지 확인해주세요.</p>";
+            displayError(errorMsg);
             return;
         }
 
-        firebase.initializeApp(firebaseConfig);
+        try {
+            // **DIAGNOSTIC STEP 2**: Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+        } catch (e) {
+            const errorMsg = `<p style'color: red; font-weight: bold;'>[오류] Firebase 초기화에 실패했습니다.<br>firebase-config.js 파일의 내용이 올바른지 확인해주세요.<br><small>${e.message}</small></p>`;
+            displayError(errorMsg);
+            return;
+        }
+        
         const database = firebase.database();
         const dbRef = database.ref();
 
@@ -45,18 +53,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderArchive();
                 populateChapterSelect();
             } else {
-                const errorMsg = "<p style='color: red; font-weight: bold;'>[오류] Firebase에서 데이터를 찾을 수 없습니다.</p>";
-                archiveList.innerHTML = errorMsg;
-                latestReviewContent.innerHTML = errorMsg;
+                const errorMsg = "<p style='color: red; font-weight: bold;'>[오류] Firebase에서 데이터를 찾을 수 없습니다.<br>Firebase Realtime Database에 initial-data.json이 올바르게 업로드되었는지 확인해주세요.</p>";
+                displayError(errorMsg);
             }
         }, (error) => {
-            const errorMsg = `<p style='color: red; font-weight: bold;'>[오류] 데이터 로딩 중 문제가 발생했습니다.</p>`;
-            archiveList.innerHTML = errorMsg;
-            latestReviewContent.innerHTML = errorMsg;
+            const errorMsg = `<p style='color: red; font-weight: bold;'>[오류] 데이터 로딩 중 문제가 발생했습니다: ${error.code}</p>`;
+            displayError(errorMsg);
         });
     }
+    
+    function displayError(errorMessage) {
+        archiveList.innerHTML = errorMessage;
+        latestReviewContent.innerHTML = errorMessage;
+    }
 
-    // --- Core Functions ---
+    // --- Core Functions (No changes from here on) ---
     function toggleContent(element) {
         const content = element.nextElementSibling;
         if (content) {
