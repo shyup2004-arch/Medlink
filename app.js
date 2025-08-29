@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- App Version ---
-    const APP_VERSION = "v2.5";
+    const APP_VERSION = "v3.0";
 
     // --- Global State ---
     let lectureData = [];
@@ -18,25 +18,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll('.nav-link');
     const views = document.querySelectorAll('.view');
     const latestReviewContent = document.getElementById('latest-review-content');
-    const essayQuestionContainer = document.getElementById('essay-question-container');
-
-    // --- Firebase Setup ---
-    let gradeEssayFunction;
 
     // --- App Initialization ---
     function initializeApp() {
         document.getElementById('app-version').textContent = APP_VERSION;
         
-        if (typeof firebase === 'undefined' || typeof database ==='undefined' || typeof firebase.functions === 'undefined') {
-            const errorMsg = "<p style='color: red; font-weight: bold;'>[오류] Firebase 초기화 실패.</p>";
+        if (typeof firebase === 'undefined') {
+            const errorMsg = "<p style='color: red; font-weight: bold;'>[오류] Firebase를 불러올 수 없습니다.</p>";
             archiveList.innerHTML = errorMsg;
             latestReviewContent.innerHTML = errorMsg;
             return;
         }
 
-        gradeEssayFunction = firebase.functions().httpsCallable('gradeEssay');
-
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
         const dbRef = database.ref();
+
         dbRef.on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -44,12 +41,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 questionData = data.questions ? Object.values(data.questions) : [];
                 latestLectureData = data.latestLecture || null;
                 
-                // Render content and then set up listeners
                 renderLatestReview();
                 renderArchive();
                 populateChapterSelect();
-                renderEssayQuestions();
-                switchView('review-view'); // Set initial view
             } else {
                 const errorMsg = "<p style='color: red; font-weight: bold;'>[오류] Firebase에서 데이터를 찾을 수 없습니다.</p>";
                 archiveList.innerHTML = errorMsg;
@@ -115,29 +109,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (archiveList.innerHTML === '') {
             archiveList.innerHTML = query ? '<p>검색 결과가 없습니다.</p>' : '<p>강의 자료가 없습니다.</p>';
         }
-    }
-
-    function renderEssayQuestions() {
-        essayQuestionContainer.innerHTML = '';
-        const essayQuestions = questionData.filter(q => q.question.includes('설명하시오') || q.question.includes('과정에 대해') || q.question.includes('이름과 특징') || q.question.includes('이름은 무엇이며') || q.question.includes('성질 두 가지와'));
-        if (essayQuestions.length === 0) {
-            essayQuestionContainer.innerHTML = '<p>연습할 서술형 문제가 아직 없습니다.</p>';
-            return;
-        }
-        essayQuestions.forEach(q => {
-            const item = document.createElement('div');
-            item.className = 'essay-item';
-            item.dataset.id = q.id;
-            item.innerHTML = `
-                <div class="essay-item-header">
-                    <h3 class="essay-question">${q.question}</h3>
-                    <span class="professor-tag">${q.professor} (${q.exam})</span>
-                </div>
-                <textarea class="essay-answer-area" placeholder="이곳에 답안을 작성해주세요..."></textarea>
-                <button class="action-button grade-essay-btn" style="width: 100%;">AI 채점하기</button>
-                <div class="essay-feedback-area"><div class="feedback-content"></div></div>`;
-            essayQuestionContainer.appendChild(item);
-        });
     }
 
     function populateChapterSelect() {
@@ -214,60 +185,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    async function handleGradeEssay(button) {
-        const item = button.closest('.essay-item');
-        const answerArea = item.querySelector('.essay-answer-area');
-        const feedbackArea = item.querySelector('.essay-feedback-area');
-        const feedbackContent = item.querySelector('.feedback-content');
-        const userAnswer = answerArea.value.trim();
-        if (userAnswer.length < 10) {
-            alert('답안을 10자 이상 작성해주세요.');
-            return;
-        }
-        const questionId = parseInt(item.dataset.id);
-        const questionInfo = questionData.find(q => q.id === questionId);
-        button.disabled = true;
-        button.textContent = 'AI 채점 중...';
-        feedbackArea.style.display = 'block';
-        feedbackContent.innerHTML = '<div class="spinner"></div>';
-        try {
-            const result = await gradeEssayFunction({ 
-                question: questionInfo.question,
-                correctAnswer: questionInfo.answer,
-                answer: userAnswer
-            });
-            feedbackContent.innerHTML = result.data.feedback;
-        } catch (error) {
-            console.error('Cloud Function Error:', error);
-            feedbackContent.innerHTML = `<p style="color: red;">채점 중 오류가 발생했습니다: ${error.message}</p>`;
-        } finally {
-            button.disabled = false;
-            button.textContent = 'AI 다시 채점하기';
-        }
-    }
-
     // --- Event Listeners Setup ---
     document.body.addEventListener('click', function(e) {
-        // Event Delegation for dynamically created elements
-        const lectureTitle = e.target.closest('.lecture-title');
-        if(lectureTitle) toggleContent(lectureTitle);
-
-        const questionTitle = e.target.closest('.question-title');
-        if(questionTitle && !e.target.closest('.question-item [data-id]')) toggleContent(questionTitle);
-        
-        const gradeBtn = e.target.closest('.grade-essay-btn');
-        if (gradeBtn) handleGradeEssay(gradeBtn);
+        const title = e.target.closest('.lecture-title, .question-title');
+        if (title) toggleContent(title);
     });
 
     modalBody.addEventListener('click', function(e) {
-        const title = e.target.closest('.question-title');
         const removeBtn = e.target.closest('.remove-btn');
         if (removeBtn) {
             e.stopPropagation();
             const questionId = parseInt(e.target.closest('.question-item').dataset.id);
             removeQuestionFromMyQuiz(questionId);
-        } else if (title && e.target.type !== 'checkbox') {
-            toggleContent(title);
         }
     });
     
@@ -276,12 +205,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (link.tagName === 'A') {
                 e.preventDefault();
                 const targetId = link.dataset.target;
-                if(targetId) {
-                    switchView(targetId);
-                }
-                if (window.innerWidth < 768) {
-                    toggleSidebar(false);
-                }
+                if(targetId) switchView(targetId);
+                if (window.innerWidth < 768) toggleSidebar(false);
             }
         });
     });
