@@ -1,10 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     // --- App Version ---
-    const APP_VERSION = "v2.0";
+    const APP_VERSION = "v2.2";
 
     // --- DOM Elements ---
     const archiveList = document.getElementById('archive-list');
-    const chapterSelect = document.getElementById('exam-chapter-select');
+    const examChapterSelect = document.getElementById('exam-chapter-select');
+    const aiChapterSelect = document.getElementById('ai-chapter-select');
     const searchInput = document.getElementById('search-input');
     const modal = document.getElementById('quiz-modal');
     const modalTitle = document.getElementById('modal-title');
@@ -81,16 +82,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function populateChapterSelects() {
-        chapterSelect.innerHTML = '<option value="all">전체 단원</option>';
+        examChapterSelect.innerHTML = '<option value="all">전체 단원</option>';
+        aiChapterSelect.innerHTML = '<option value="all">전체 단원</option>';
         lectureData.forEach(lecture => {
             const option = document.createElement('option');
             option.value = lecture.id;
             option.textContent = lecture.title;
-            chapterSelect.appendChild(option.cloneNode(true));
+            examChapterSelect.appendChild(option.cloneNode(true));
+            aiChapterSelect.appendChild(option);
         });
     }
 
-    function displayQuestionsInModal(questions, title) {
+    function displayQuestionsInModal(questions, title, type = 'exam') {
         modalTitle.textContent = title;
         modalBody.innerHTML = '';
         const isMyQuiz = (title === '⭐️ 나만의 문제집');
@@ -104,7 +107,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const item = document.createElement('div');
                 item.className = 'question-item';
                 item.dataset.id = q.id;
-                item.innerHTML = `<div class="question-title"><label style="display: flex; align-items: center; width: 100%; font-weight: normal; cursor: pointer;"><input type="checkbox" class="save-checkbox" style="${isMyQuiz ? 'display:none;' : ''}"><span style="margin-left: ${isMyQuiz ? '0' : '10px'};">${index + 1}. ${q.question}</span></label><div style="display:flex; align-items:center; flex-shrink: 0;">${isMyQuiz ? `<button class="remove-btn">삭제</button>` : ''}<span class="professor-tag">${q.professor} (${q.exam})</span></div></div><div class="content"><pre>${q.answer}</pre></div>`;
+                const sourceTag = type === 'ai' 
+                    ? `<span class="professor-tag" style="background-color: #e2e8f0;">AI 예상</span>`
+                    : `<span class="professor-tag">${q.professor} (${q.exam})</span>`;
+                item.innerHTML = `<div class="question-title"><label style="display: flex; align-items: center; width: 100%; font-weight: normal; cursor: pointer;"><input type="checkbox" class="save-checkbox" style="${isMyQuiz ? 'display:none;' : ''}"><span style="margin-left: ${isMyQuiz ? '0' : '10px'};">${index + 1}. ${q.question}</span></label><div style="display:flex; align-items:center; flex-shrink: 0;">${isMyQuiz ? `<button class="remove-btn">삭제</button>` : ''}${sourceTag}</div></div><div class="content"><pre>${q.answer}</pre></div>`;
                 modalBody.appendChild(item);
             });
         }
@@ -115,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let savedIds = JSON.parse(localStorage.getItem('myQuizIds') || '[]');
         savedIds = savedIds.filter(id => id !== questionId);
         localStorage.setItem('myQuizIds', JSON.stringify(savedIds));
-        const allQuestions = questionData; // Simplified for now
+        const allQuestions = [...questionData, ...aiQuestionData];
         const savedQuestions = allQuestions.filter(q => savedIds.includes(q.id));
         displayQuestionsInModal(savedQuestions, '⭐️ 나만의 문제집');
     }
@@ -177,19 +183,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Exam Button Listeners
     document.getElementById('generate-exam-bank-btn').addEventListener('click', () => {
-        const chapterId = chapterSelect.value;
+        const chapterId = examChapterSelect.value;
         const questions = (chapterId === 'all') ? questionData : questionData.filter(q => q.chapter.includes(parseInt(chapterId)));
         const title = (chapterId === 'all') ? '전체 단원 기출은행' : `${lectureData.find(l => l.id == chapterId).title} 기출은행`;
-        displayQuestionsInModal(questions, title);
+        displayQuestionsInModal(questions, title, 'exam');
     });
 
     document.getElementById('generate-exam-mock-btn').addEventListener('click', () => {
         const examNum = document.getElementById('exam-range-select').value;
         const range = examRanges[examNum];
-        const questions = questionData.filter(q => {
-            return q.chapter.some(c => range.chapters.includes(c));
-        });
-        displayQuestionsInModal(questions, `${range.name} 실전 기출 모의고사`);
+        const questions = questionData.filter(q => q.chapter.some(c => range.chapters.includes(c)));
+        displayQuestionsInModal(questions, `${range.name} 실전 기출 모의고사`, 'exam');
+    });
+
+    // AI Button Listeners
+    document.getElementById('generate-ai-bank-btn').addEventListener('click', () => {
+        const chapterId = aiChapterSelect.value;
+        const questions = (chapterId === 'all') ? aiQuestionData : aiQuestionData.filter(q => q.chapter.includes(parseInt(chapterId)));
+        const title = (chapterId === 'all') ? '전체 단원 N제' : `${lectureData.find(l => l.id == chapterId).title} N제`;
+        displayQuestionsInModal(questions, title, 'ai');
+    });
+
+    document.getElementById('generate-ai-mock-btn').addEventListener('click', () => {
+        const examNum = document.getElementById('ai-range-select').value;
+        const range = examRanges[examNum];
+        const questions = aiQuestionData.filter(q => q.chapter.some(c => range.chapters.includes(c)));
+        displayQuestionsInModal(questions, `${range.name} 범위 N제 모의고사`, 'ai');
     });
     
     document.getElementById('show-my-quiz-btn').addEventListener('click', () => {
@@ -197,7 +216,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (savedIds.length === 0) {
             alert("'나만의 문제집'이 비어있습니다."); return;
         }
-        const savedQuestions = questionData.filter(q => savedIds.includes(q.id));
+        const allQuestions = [...questionData, ...aiQuestionData];
+        const savedQuestions = allQuestions.filter(q => savedIds.includes(q.id));
         displayQuestionsInModal(savedQuestions, '⭐️ 나만의 문제집');
     });
 

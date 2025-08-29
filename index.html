@@ -77,7 +77,25 @@
                 <div id="ai-exam-view" class="view">
                     <div class="section">
                         <h2>🤖 AI 실력 점검 (N제)</h2>
-                         <p class="description">AI가 기출문제를 변형하거나 새로운 유형의 문제를 생성하여 당신의 실력을 점검합니다. (현재 준비 중인 기능입니다.)</p>
+                        <div class="mode-selection">
+                            <button class="mode-btn" data-mode="bank" data-type="ai"><i class="fas fa-list-ul"></i> 단원별 N제 풀이</button>
+                            <button class="mode-btn" data-mode="mock" data-type="ai"><i class="fas fa-file-alt"></i> 실전 N제 모의고사</button>
+                        </div>
+                        <div id="ai-bank-options" class="options-menu" style="display:none;">
+                            <label for="ai-chapter-select">단원 선택:</label>
+                            <select id="ai-chapter-select"></select>
+                            <button id="generate-ai-bank-btn" class="action-button">문제 보기</button>
+                        </div>
+                        <div id="ai-mock-options" class="options-menu" style="display:none;">
+                            <label for="ai-range-select">시험 범위 선택:</label>
+                            <select id="ai-range-select">
+                                <option value="1">1차 시험 범위</option>
+                                <option value="2">2차 시험 범위</option>
+                                <option value="3">3차 시험 범위</option>
+                                <option value="4">4차 시험 범위</option>
+                            </select>
+                            <button id="generate-ai-mock-btn" class="action-button">모의고사 시작</button>
+                        </div>
                     </div>
                 </div>
             </div>
